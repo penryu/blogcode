@@ -7,7 +7,7 @@ import collection.mutable.PriorityQueue
 class TopQueue[A](val capacity: Int)(implicit val ord: Ordering[A])
     extends Builder[A, Seq[A]] {
 
-  private val queue = new PriorityQueue[A]()(ord.reverse)
+  private[this] val queue = new PriorityQueue[A]()(ord.reverse)
 
   override def +=(elem: A): this.type = {
     if (queue.size < capacity) {
@@ -38,7 +38,9 @@ object TopQueue {
 
   def apply[A](size: Int, count: Int)(block: => A)(implicit ord: Ordering[A]): TopQueue[A] = {
     val tq = new TopQueue[A](size)(ord)
-    for (_ <- 1 to count) tq += block;
+    for (_ <- 1 to count) {
+      tq += block
+    }
     tq
   }
 }
