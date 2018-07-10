@@ -46,7 +46,7 @@ object TopQueue {
 }
 
 package object utils {
-  implicit class IterableWithTop[A, CA <% Iterable[A]](val iter: CA) {
+  implicit class IterableWithTop[A, CA <% Iterable[A]](iter: CA) {
     def top(capacity: Int)(implicit ord: Ordering[A]): Seq[A] =
       TopQueue(capacity, iter)(ord).result
   }
