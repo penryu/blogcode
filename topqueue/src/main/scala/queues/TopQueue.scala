@@ -23,7 +23,7 @@ class TopQueue[A](val capacity: Int)(implicit val ord: Ordering[A])
   def size: Int = length
 
   override def clear: Unit = queue.clear
-  override def result: Seq[A] = queue.dequeueAll.reverse
+  override def result: Seq[A] = queue.dequeueAll
 }
 
 object TopQueue {

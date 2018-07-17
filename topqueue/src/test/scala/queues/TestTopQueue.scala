@@ -21,48 +21,58 @@ class TestTopQueue extends FlatSpec with Matchers {
     emptyQueue.size should equal (0)
     emptyQueue.result.size should equal (0)
   }
+
   it should "handle less than capacity" in {
+    val input = Set(1, 5, 3)
     val shortQueue = TopQueue[Int](5)
-    shortQueue ++= Seq(1, 5, 3)
-    shortQueue.size should equal (3)
-    shortQueue.result should equal (Seq(5, 3, 1))
+    shortQueue ++= input
+    shortQueue.size should equal (input.size)
+    shortQueue.result.toSet should equal (input)
   }
+
   it should "handle capacity" in {
+    val input = Set(1, 5, 3, 4, 2)
     val queue = TopQueue[Int](5)
-    queue ++= Seq(1, 5, 3, 4, 2)
-    queue.size should equal (5)
-    queue.result should equal (Seq(5, 4, 3, 2, 1))
+    queue ++= input
+    queue.size should equal (input.size)
+    queue.result.toSet should equal (input)
   }
+
   it should "more than capacity values" in {
+    val input = Set(1, 5, 3, 4, 2, 7, 6)
+    val output = Set(7, 6, 5, 4, 3)
     val queue = TopQueue[Int](5)
-    queue ++= Seq(1, 5, 3, 4, 2, 7, 6)
-    queue.size should equal (5)
-    queue.result should equal (Seq(7, 6, 5, 4, 3))
+    queue ++= input
+    queue.size should equal (queue.capacity)
+    queue.result.toSet should equal (output)
   }
+
   it should "invert sort appropriately" in {
     val nums = Seq.fill(20)(rng.nextInt)
     val sortedNums = nums.sorted
 
     val tq = nums.foldLeft(TopQueue[Int](3))(_ += _)
     val topNums = tq.result
-    topNums should be (sortedNums.takeRight(3).reverse)
+    topNums.sorted should be (sortedNums.takeRight(3))
 
     implicit val inverseSort = Ordering[Int].reverse
     val mq = nums.foldLeft(TopQueue[Int](3))(_ += _)
     val minNums = mq.result
-    minNums should be (sortedNums.take(3))
+    minNums.sorted should be (sortedNums.take(3).reverse)
   }
+
   it should "correctly process Int types" in {
     val randomInts = Vector.fill(InputSize)(rng.nextInt(Int.MaxValue))
     val intTop = TopQueue(QueueSize, randomInts).result
-    val (high, low) = randomInts.partition(_ >= intTop.last)
+    val (high, low) = randomInts.partition(_ >= intTop.min)
 
     intTop.size should equal (QueueSize)
     high.size should equal (QueueSize)
     low.size should equal (InputSize - QueueSize)
-    intTop should equal (high.sorted.reverse)
-    low.find(_ >= intTop.head) should be (None)
+    intTop.toSet should equal (high.toSet)
+    low.find(_ >= intTop.min) should be (None)
   }
+
   it should "correctly process BigInt types" in {
     val randomBigInts = Vector.fill(InputSize) {
       val r1 = rng.nextInt(Int.MaxValue)
@@ -74,11 +84,11 @@ class TestTopQueue extends FlatSpec with Matchers {
 
     bigIntTop.size should equal (QueueSize)
 
-    val (high, low) = randomBigInts.partition(_ >= bigIntTop.last)
+    val (high, low) = randomBigInts.partition(_ >= bigIntTop.min)
     high.size should equal (QueueSize)
     low.size should equal (InputSize - QueueSize)
-    bigIntTop should equal (high.sorted.reverse)
-    low.find(_ >= bigIntTop.head) should be (None)
+    bigIntTop.toSet should equal (high.toSet)
+    low.find(_ >= bigIntTop.min) should be (None)
   }
 
   it should "correctly process generated types" in {
@@ -88,7 +98,6 @@ class TestTopQueue extends FlatSpec with Matchers {
 
   it should "correctly process generated big integer types" in {
     val bigIntTop = TopQueue(QueueSize, InputSize)(BigInt(128, rng)).result
-    val top: BigInt = bigIntTop.head
     bigIntTop.size should equal (QueueSize)
   }
 
@@ -128,18 +137,18 @@ class TestTopQueue extends FlatSpec with Matchers {
     topWords.size should equal (QueueSize)
 
     /** topWords would be the LAST [QueueSize] words */
-    val lastWords = wordsSortedAlpha.takeRight(QueueSize).reverse
-    topWords.mkString should equal (lastWords.mkString)
+    val lastWords = wordsSortedAlpha.takeRight(QueueSize)
 
     /** TopQueue should get the CORRECT values. */
-    topWords should equal (lastWords)
+    topWords.toSet should equal (lastWords.toSet)
   }
 
   "IterableWithTop" should "extend the Iterable type with top method" in {
     import topqueue.utils._
-    val nums = Vector(51, 2, 80, 70, 35, 52, 14, 12, 43, 92)
-    val top3 = nums.top(3)
-    top3 should equal (List(92, 80, 70))
+    val input = Set(51, 2, 80, 70, 35, 52, 14, 12, 43, 92)
+    val output = Set(92, 80, 70)
+    val top3 = input.top(3)
+    top3.toSet should equal (output)
   }
 
 }
