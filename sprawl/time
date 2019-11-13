@@ -1,0 +1,7 @@
+#!/bin/sh
+
+bin="$1"
+file="$2"
+format='{"%C": {"usr": %U, "sys": %S, "total": %e, "cpu": "%P"}}'
+time=`{ time -f "$format" "./$bin" < "$2" > out; } 2>&1`
+echo "$time" | tee "$bin.time"
