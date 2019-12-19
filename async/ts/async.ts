@@ -1,7 +1,8 @@
 import fetchURL from 'node-fetch';
+import * as path from 'path';
+import * as process from 'process';
 
-const RequestCount: number = 50;
-const TargetUrl: string = 'https://api.ipify.org?format=json';
+const RequestCount: number = 500;
 
 async function fetchEndpoint(url: string): Promise<number> {
     const resp = await fetchURL(url);
@@ -38,14 +39,14 @@ async function runAsync(url: string, count: number): Promise<string> {
 }
 
 async function main() {
-    const results = await Promise.all([
-        runSync(TargetUrl, RequestCount),
-        runAsync(TargetUrl, RequestCount),
-    ]);
-
-    for (const result of results) {
-        console.log(result);
+    if (process.argv.length < 3) {
+        const myname = path.basename(process.argv[1]);
+        console.log(`Usage: ${myname} URL`);
+        process.exit(1);
     }
+    const TargetUrl: string = process.argv[2];
+    runSync(TargetUrl, RequestCount).then(console.log);
+    runAsync(TargetUrl, RequestCount).then(console.log);
 }
 
 main();

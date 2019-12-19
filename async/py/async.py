@@ -2,17 +2,14 @@
 
 import aiohttp
 import asyncio
-import statistics
+import sys
 import threading
 import time
-
-from aiohttp import request
 
 from typing import Dict, List
 
 
-COUNT: int = 50
-URL: str = "https://api.ipify.org?format=json"
+COUNT: int = 500
 
 
 async def fetchPage(url: str) -> int:
@@ -21,19 +18,19 @@ async def fetchPage(url: str) -> int:
     return len(str(body))
 
 
-async def runSync():
+async def runSync(url: str):
     print("Starting sync...")
     start_ns = time.time_ns()
-    responses: List = [await fetchPage(URL) for i in range(COUNT)]
+    responses: List = [await fetchPage(url) for i in range(COUNT)]
     delta_ms = (time.time_ns() - start_ns) / 1000000
     bytes = sum(responses)
     print(f"Sync: {bytes} bytes in {delta_ms}ms")
 
 
-async def runAsync():
+async def runAsync(url: str):
     print("Starting async...")
     start_ns = time.time_ns()
-    tasks = [fetchPage(URL) for i in range(COUNT)]
+    tasks = [fetchPage(url) for i in range(COUNT)]
     responses = await asyncio.gather(*tasks)
     delta_ms = (time.time_ns() - start_ns) / 1000000
     bytes = sum(responses)
@@ -41,9 +38,16 @@ async def runAsync():
 
 
 async def main():
+    if len(sys.argv) < 2:
+        myname = sys.argv[0]
+        print(f"Usage: {myname} URL")
+        sys.exit(1)
+
+    url = sys.argv[1]
+
     threads = (
-        threading.Thread(target=lambda: asyncio.run(runSync())),
-        threading.Thread(target=lambda: asyncio.run(runAsync())),
+        threading.Thread(target=lambda: asyncio.run(runSync(url))),
+        threading.Thread(target=lambda: asyncio.run(runAsync(url))),
     )
 
     print("Starting threads...")

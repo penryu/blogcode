@@ -4,13 +4,25 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path"
 	"sync"
 	"time"
 )
 
 func fetchURL(url string) int {
-	resp, _ := http.Get(url)
-	body, _ := ioutil.ReadAll(resp.Body)
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println(err)
+		return 0
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+		return 0
+	}
+
 	resp.Body.Close()
 	return len(body)
 }
@@ -60,8 +72,15 @@ func fetchAsync(url string, count int, wg *sync.WaitGroup) {
 }
 
 func main() {
-	requestCount := 50
-	targetURL := "https://api.ipify.org/?format=json"
+	if len(os.Args) < 2 {
+		myname := path.Base(os.Args[0])
+		fmt.Printf("Usage: %s URL\n", myname)
+		os.Exit(1)
+	}
+
+	targetURL := os.Args[1]
+
+	requestCount := 500
 
 	var wg sync.WaitGroup
 	wg.Add(2)
