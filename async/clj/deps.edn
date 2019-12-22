@@ -1,0 +1,11 @@
+{
+ :deps {
+        org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/core.async {:mvn/version "0.6.532"}
+        }
+ :aliases
+ {:uberjar {:extra-deps {luchiniatwork/cambada {:mvn/version "1.0.0"}}
+            :main-opts ["-m" "cambada.uberjar"
+                        "--app-group-id" "app.penryu"
+                        "--app-artifact-id" "async-demo"
+                        "-m" "async.core"]}}}
