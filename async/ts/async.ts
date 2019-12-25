@@ -7,39 +7,25 @@ async function fetchEndpoint(url: string): Promise<number> {
     return text.length;
 }
 
-async function runSync(url: string, count: number): Promise<string> {
-    console.log('Sync starting...');
-
-    const startTime = Date.now();
+async function runSync(url: string, count: number): Promise<number> {
     let bytes: number = 0;
     for (let i = 0; i < count; ++i) {
         bytes += await fetchEndpoint(url);
     }
-    const deltaT = Date.now() - startTime;
-
-    return `Sync: ${bytes} bytes in ${deltaT}ms.`;
+    return bytes;
 }
 
-async function runAsync(url: string, count: number): Promise<string> {
-    console.log('Async starting...');
-
-    const startTime = Date.now();
+async function runAsync(url: string, count: number): Promise<number> {
     const promises = [];
     for (let i = 0; i < count; ++i) {
         promises.push(fetchEndpoint(url));
     }
     const results = await Promise.all(promises);
-    const deltaT = Date.now() - startTime;
-    const bytes = results.reduce((acc, n) => (acc + n), 0);
-
-    return `Async: ${bytes} bytes in ${deltaT}ms`;
+    return results.reduce((acc, n) => (acc + n), 0);
 }
 
-function runObservable(url: string, count: number): Promise<string> {
-    console.log('Observable starting...');
-
+function runObservable(url: string, count: number): Promise<number> {
     return new Promise((resolve) => {
-        const startTime = Date.now();
         const observableFetches = new Observable((subscriber) => {
             const promises = [];
             for (let i = 0; i < count; ++i) {
@@ -52,9 +38,8 @@ function runObservable(url: string, count: number): Promise<string> {
         observableFetches.subscribe({
             next(x) { results.push(x); },
             complete() {
-                const deltaT = Date.now() - startTime;
                 const bytes = results.reduce((acc, n) => (acc + n), 0);
-                resolve(`Observable ${bytes} bytes in ${deltaT}ms`);
+                resolve(bytes);
             }
         });
     });
@@ -63,7 +48,7 @@ function runObservable(url: string, count: number): Promise<string> {
 async function main() {
     const path = require('path');
     const process = require('process');
-    const RequestCount: number = 50;
+    const RequestCount: number = 100;
 
     if (process.argv.length < 3) {
         const myname = path.basename(process.argv[1]);
@@ -71,9 +56,21 @@ async function main() {
         process.exit(1);
     }
     const TargetUrl: string = process.argv[2];
-    runSync(TargetUrl, RequestCount).then(console.log);
-    runAsync(TargetUrl, RequestCount).then(console.log);
-    runObservable(TargetUrl, RequestCount).then(console.log);
+
+    const operations = new Map<CallableFunction, string>([
+        [runSync, 'Sync'],
+        [runAsync, 'Async'],
+        [runObservable, 'Observable'],
+    ]);
+
+    operations.forEach((label: string, f: CallableFunction) => {
+        console.log(`${label} starting...`);
+        const start = Date.now();
+        f(TargetUrl, RequestCount).then((bytes) => {
+            const delta = Date.now() - start;
+            console.log(`${label}: ${bytes} bytes in ${delta}ms.`);
+        });
+    });
 }
 
 main();
