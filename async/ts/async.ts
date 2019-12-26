@@ -37,17 +37,11 @@ function runObservable(url: string, count: number): Promise<number> {
     const requests: Array<Observable<number>> = Array(count).fill(url)
         .map((u) => from(fetchEndpoint(u)));
     // merge Array<Observable<number>> => Observable<Array<number>>
-    const oBytes: Observable<number> = merge(...requests)
+    return merge(...requests)
         // ... => Observable<number> containing sum total bytes
-        .pipe(reduce((acc, x) => acc + x));
-
-    // return Promise resolved/rejected by the outcome of Observable<number>
-    return new Promise((resolve, reject) => {
-        oBytes.subscribe({
-            next(x) { resolve(x); },
-            error(e) { reject(e); },
-        });
-    });
+        .pipe(reduce((acc, x) => acc + x))
+        // to Promise for async function
+        .toPromise();
 }
 
 async function main() {
