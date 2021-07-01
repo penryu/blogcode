@@ -6,7 +6,7 @@ technology, and anything else that sounds interesting.
 Sometimes these posts reference pieces of code or text that don't fit
 into a simple code block. Sometimes those pieces are kept here.
 
-[penryu_blog]: https://type.penryu.app/
+[penryu_blog]: https://lex.penryu.app/
 
 # license
 
