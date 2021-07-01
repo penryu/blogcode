@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 
-from typing import Dict, List
+from typing import List
 
 
 COUNT: int = 500
