@@ -55,13 +55,6 @@ impl TopQueue {
 
         q
     }
-    /// Returns the maximum number of values the queue will retain.
-    ///
-    /// Unlike a binary heap, this value will not change
-    ///
-    pub fn size(&self) -> usize {
-        self.size
-    }
 
     /// Returns a Vec of the values contained in the queue in the
     /// order they would be returned by the underlying binary_heap.
@@ -102,19 +95,15 @@ impl TopQueue {
             self.queue.push(Reverse(n))
         }
     }
+
+    /// Returns the maximum number of values the queue will retain.
+    ///
+    /// Unlike a binary heap, this value will not change
+    ///
+    pub fn size(&self) -> usize {
+        self.size
+    }
 }
-
-// impl FromIterator<i32> for TopQueue {
-//     fn from_iter<I: IntoIterator<Item=i32>>(iter: I) -> Self {
-//         let mut q = TopQueue::new(10);
-
-//         for x in iter {
-//             q.push(x);
-//         }
-
-//         q
-//     }
-// }
 
 #[cfg(test)]
 mod tests {
@@ -149,6 +138,9 @@ mod tests {
     #[test]
     fn topq_can_handle_lots_of_values() {
         let q = TopQueue::from_iter(100, make_rands(1_000_000_000));
+        assert_eq!(100, q.len());
+        assert_eq!(100, q.size());
+
         let tops = q.into_vec();
         println!("{:?}", tops);
         assert!({
