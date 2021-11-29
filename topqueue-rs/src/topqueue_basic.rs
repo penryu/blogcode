@@ -1,13 +1,9 @@
-//! Tests in this file correspond to example code in the second [blog post].
-//!
-//! [blog post]: https://lex.penryu.dev/posts/scala-interview-2
-
 //! A binary heap (aka, priority queue) stores inserted values in sorted order
 //! as they're added.
 //!
 //! ```
 //! # use std::collections::binary_heap::BinaryHeap;
-//! # use topqueue::page1::make_rands;
+//! # use topqueue::util::make_rands;
 //! // Generate a vector of 1000 random ints
 //! let mut nums: Vec<i32> = make_rands(1000).collect();
 //! // Find the largest value in a linear search
@@ -44,18 +40,6 @@ impl TopQueue {
         }
     }
 
-    /// Creates a new TopQueue of size `size` and with the elements of
-    /// `iter` pushed into it.
-    pub fn from_iter<I: IntoIterator<Item=i32>>(size: usize, iter: I) -> Self {
-        let mut q = TopQueue::new(size);
-
-        for x in iter {
-            q.push(x);
-        }
-
-        q
-    }
-
     /// Returns a Vec of the values contained in the queue in the
     /// order they would be returned by the underlying binary_heap.
     ///
@@ -68,6 +52,11 @@ impl TopQueue {
             .drain()
             .map(|r| r.0)
             .collect()
+    }
+
+    /// Returns true if the underlying queue length is 0.
+    pub fn is_empty(&self) -> bool {
+        self.queue.len() == 0
     }
 
     /// Returns the number of elements currently in the TopQueue.
@@ -107,8 +96,8 @@ impl TopQueue {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::page1::make_rands;
+    use crate::topqueue_basic::*;
+    use crate::util::make_rands;
 
     #[test]
     fn topq_basics() {
@@ -135,9 +124,14 @@ mod tests {
         assert_eq!(output, vec![23, 21, 20, 18, 14, 12, 7, 6, 5, 4]);
     }
 
+    /// This test mostly just tests the distribution of the rng,
+    /// with a fairly forgiving margin.
     #[test]
     fn topq_can_handle_lots_of_values() {
-        let q = TopQueue::from_iter(100, make_rands(1_000_000_000));
+        let mut q = TopQueue::new(100);
+        for n in make_rands(10_000_000) {
+            q.push(n);
+        }
         assert_eq!(100, q.len());
         assert_eq!(100, q.size());
 
@@ -145,7 +139,7 @@ mod tests {
         println!("{:?}", tops);
         assert!({
             let min_top = tops.iter().min().unwrap();
-            let top_000001 = i32::MAX / 100_000;
+            let top_000001 = i32::MAX / 10_000;
             (i32::MAX - min_top) < top_000001
         });
     }
