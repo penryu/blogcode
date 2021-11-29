@@ -47,8 +47,9 @@ pub fn make_rands(len: usize) -> impl Iterator<Item=i32> {
 
 /// `get_top()` implements a brute force method of selecting the
 /// largest `top` integers from the given vector.
-pub fn get_top(vec: &Vec<i32>, top: usize) -> Vec<i32> {
-    let mut dupe = vec.to_owned().into_iter().collect::<Vec<i32>>();
+#[must_use]
+pub fn get_top(nums: &[i32], top: usize) -> Vec<i32> {
+    let mut dupe = nums.to_owned().into_iter().collect::<Vec<i32>>();
     dupe.sort_unstable_by(|a, b| b.cmp(a));
     dupe.into_iter().take(top).collect()
 }
