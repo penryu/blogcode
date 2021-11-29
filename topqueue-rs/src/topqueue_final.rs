@@ -31,9 +31,10 @@ pub struct TopQueue<T: Ord> {
 }
 
 impl<T: Ord> TopQueue<T> {
-    /// Create a new TopQueue that tracks the largest
+    /// Create a new `TopQueue` that tracks the largest
     /// `size` number of inserted items.
     ///
+    #[must_use]
     pub fn new(size: usize) -> Self {
         TopQueue {
             size,
@@ -41,7 +42,7 @@ impl<T: Ord> TopQueue<T> {
         }
     }
 
-    /// Creates a new TopQueue of size `size` and with the elements of
+    /// Creates a new `TopQueue` of size `size` and with the elements of
     /// `iter` pushed into it.
     pub fn from_iter<I: IntoIterator<Item=T>>(size: usize, iter: I) -> Self {
         let mut q = TopQueue::new(size);
@@ -54,10 +55,11 @@ impl<T: Ord> TopQueue<T> {
     }
 
     /// Returns a Vec of the values contained in the queue in the
-    /// order they would be returned by the underlying binary_heap.
+    /// order they would be returned by the underlying `binary_heap`.
     ///
     /// Consumes the contents of the queue.
     ///
+    #[must_use]
     pub fn into_vec(mut self) -> Vec<T> {
         // BinaryHeap doesn't allow draining in sorted order like Scala's
         // PriorityQueue, and the into_iter_sorted() method is unstable.
@@ -66,14 +68,16 @@ impl<T: Ord> TopQueue<T> {
     }
 
     /// Returns true if the underlying queue length is 0.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.queue.len() == 0
     }
 
-    /// Returns the number of elements currently in the TopQueue.
+    /// Returns the number of elements currently in the `TopQueue`.
     ///
     /// Will always be <= `self.size`.
     ///
+    #[must_use]
     pub fn len(&self) -> usize {
         self.queue.len()
     }
@@ -86,7 +90,7 @@ impl<T: Ord> TopQueue<T> {
     pub fn push(&mut self, item: T) {
         // If we're under capacity, just push
         if self.queue.len() < self.size {
-            self.queue.push(Reverse(item))
+            self.queue.push(Reverse(item));
         // If new value is greater than the smallest in the queue, push
         // (The underlying BinaryHeap<Reverse<_>> means the comparison
         // operators are reversed.)
@@ -94,7 +98,7 @@ impl<T: Ord> TopQueue<T> {
             let rev_item = Reverse(item);
             if Some(&rev_item) <= self.queue.peek() {
                 self.queue.pop();
-                self.queue.push(rev_item)
+                self.queue.push(rev_item);
             }
         }
     }
@@ -103,6 +107,7 @@ impl<T: Ord> TopQueue<T> {
     ///
     /// Unlike a binary heap, this value will not change
     ///
+    #[must_use]
     pub fn size(&self) -> usize {
         self.size
     }
@@ -113,7 +118,7 @@ mod tests {
     use crate::topqueue_final::TopQueue;
     use crate::util::make_rands;
 
-    const TEXT: &'static str = "In a castle of Westphalia,
+    const TEXT: &str = "In a castle of Westphalia,
         belonging to the Baron of Thunder-ten-Tronckh, lived a youth, whom
         nature had endowed with the most gentle manners.";
 
@@ -124,15 +129,15 @@ mod tests {
         assert_eq!(10, q.size());
 
         // Throw in a handful of values
-        for n in vec![1, 3, 5, 7, 21, 23] {
-            q.push(n);
+        for n in &[1, 3, 5, 7, 21, 23] {
+            q.push(*n);
         }
         assert_eq!(6, q.len());
         assert_eq!(10, q.size());
 
         // Push more than the queue will hold
-        for n in vec![4, 6, 12, 14, 18, 20] {
-            q.push(n);
+        for n in &[4, 6, 12, 14, 18, 20] {
+            q.push(*n);
         }
         assert_eq!(10, q.len());
         assert_eq!(10, q.size());
@@ -166,7 +171,7 @@ mod tests {
         let q = TopQueue::from_iter(count, TEXT.chars());
 
         let mut all_chars: Vec<_> = TEXT.chars().collect();
-        all_chars.sort();
+        all_chars.sort_unstable();
         assert!(all_chars.ends_with(&q.into_vec()));
     }
 }

@@ -30,9 +30,10 @@ pub struct TopQueue {
 }
 
 impl TopQueue {
-    /// Create a new TopQueue that tracks the largest
+    /// Create a new `TopQueue` that tracks the largest
     /// `size` number of inserted items.
     ///
+    #[must_use]
     pub fn new(size: usize) -> Self {
         TopQueue {
             size,
@@ -41,10 +42,11 @@ impl TopQueue {
     }
 
     /// Returns a Vec of the values contained in the queue in the
-    /// order they would be returned by the underlying binary_heap.
+    /// order they would be returned by the underlying `binary_heap`.
     ///
     /// Consumes the contents of the queue.
     ///
+    #[must_use]
     pub fn into_vec(mut self) -> Vec<i32> {
         // BinaryHeap doesn't allow draining in sorted order like Scala's
         // PriorityQueue, and the into_iter_sorted() method is unstable.
@@ -55,14 +57,16 @@ impl TopQueue {
     }
 
     /// Returns true if the underlying queue length is 0.
+    #[must_use]
     pub fn is_empty(&self) -> bool {
         self.queue.len() == 0
     }
 
-    /// Returns the number of elements currently in the TopQueue.
+    /// Returns the number of elements currently in the `TopQueue`.
     ///
     /// Will always be <= `self.size`.
     ///
+    #[must_use]
     pub fn len(&self) -> usize {
         self.queue.len()
     }
@@ -75,13 +79,13 @@ impl TopQueue {
     pub fn push(&mut self, n: i32) {
         // If we're under capacity, just push
         if self.queue.len() < self.size() {
-            self.queue.push(Reverse(n))
+            self.queue.push(Reverse(n));
         // If new value is greater than the smallest in the queue, push
         // (The underlying BinaryHeap<Reverse<_>> means the comparison
         // operators are reversed.)
         } else if Some(&Reverse(n)) < self.queue.peek() {
             self.queue.pop();
-            self.queue.push(Reverse(n))
+            self.queue.push(Reverse(n));
         }
     }
 
@@ -89,6 +93,7 @@ impl TopQueue {
     ///
     /// Unlike a binary heap, this value will not change
     ///
+    #[must_use]
     pub fn size(&self) -> usize {
         self.size
     }
@@ -96,7 +101,7 @@ impl TopQueue {
 
 #[cfg(test)]
 mod tests {
-    use crate::topqueue_basic::*;
+    use crate::topqueue_basic::TopQueue;
     use crate::util::make_rands;
 
     #[test]
@@ -106,15 +111,15 @@ mod tests {
         assert_eq!(10, q.size());
 
         // Throw in a handful of values
-        for n in vec![1, 3, 5, 7, 21, 23] {
-            q.push(n);
+        for n in &[1, 3, 5, 7, 21, 23] {
+            q.push(*n);
         }
         assert_eq!(6, q.len());
         assert_eq!(10, q.size());
 
         // Push more than the queue will hold
-        for n in vec![4, 6, 12, 14, 18, 20] {
-            q.push(n);
+        for n in &[4, 6, 12, 14, 18, 20] {
+            q.push(*n);
         }
         assert_eq!(10, q.len());
         assert_eq!(10, q.size());

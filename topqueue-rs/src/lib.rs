@@ -1,3 +1,4 @@
+#![warn(clippy::pedantic)]
 #![warn(missing_docs)]
 
 //! This is a Rust port of the code from my series of posts on implementing a
@@ -6,11 +7,11 @@
 //! Rust counterparts to some of the naive code samples from [page 1] can be found
 //! in [util].
 //!
-//! A Rust port of the initial implementation of TopQueue is in
-//! [topqueue_basic].
+//! A Rust port of the initial implementation of `TopQueue` is in
+//! [`topqueue_basic`].
 //!
 //! The final Rust version, featuring most applicable elements from the final
-//! Scala version, is in [topqueue_final].
+//! Scala version, is in [`topqueue_final`].
 //!
 //! [^original]: The original series, "A Scala Interview", can be found [here].
 //!
