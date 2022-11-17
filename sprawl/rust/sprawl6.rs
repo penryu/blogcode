@@ -2,26 +2,26 @@
 
 use std::io::{self, Read, Write};
 
+const BUF_SIZE: usize = 4096;
+
 fn main() {
     // generate the bitstring lookup table
     let mut lookup = [[0u8; 8]; 256];
+
+    #[allow(clippy::needless_range_loop)]
     for i in 0..256 {
         let s: String = format!("{:08b}", i);
         lookup[i].copy_from_slice(s.as_bytes());
     }
 
-    // get buffered handles on stdin and stdout
-    let stdin = io::stdin();
-    let stdout = io::stdout();
-    let mut bufin = stdin.lock();
-    let mut bufout = stdout.lock();
+    let mut bufout = io::stdout().lock();
 
     // allocate read and write buffers
-    let mut inbuffer = [0u8; 4096];
-    let mut outbuffer = [0u8; 32768];
+    let mut inbuffer = [0u8; BUF_SIZE];
+    let mut outbuffer = [0u8; BUF_SIZE * 8];
 
     // fill inbuffer
-    while let Ok(n) = bufin.read(&mut inbuffer) {
+    while let Ok(n) = io::stdin().lock().read(&mut inbuffer) {
         // quit if we're done reading
         if n == 0 {
             break;
@@ -33,6 +33,6 @@ fn main() {
         }
 
         // dump outbuffer
-        let _ = bufout.write_all(&outbuffer[0..(n*8)]);
+        let _ = bufout.write_all(&outbuffer[0..(n * 8)]);
     }
 }
