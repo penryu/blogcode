@@ -4,7 +4,7 @@ function ppi<T>(it: Iterable<T>): string {
 }
 
 function eagerOdds(n: number): number[] {
-  const results = [];
+  const results: Array<number> = [];
   let i = 1;
   while (n-- > 0) {
     results.push(i);
