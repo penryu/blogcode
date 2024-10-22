@@ -1,4 +1,25 @@
 [package]
 name = "sprawl"
-version = "0.0.1"
+version = "0.1.0"
 authors = ["Tim <penryu@gmail.com>"]
+edition = "2021"
+
+[[bin]]
+name = "sprawl1"
+path = "src/sprawl1.rs"
+
+[[bin]]
+name = "sprawl2"
+path = "src/sprawl2.rs"
+
+[[bin]]
+name = "sprawl3"
+path = "src/sprawl3.rs"
+
+[[bin]]
+name = "sprawl4"
+path = "src/sprawl4.rs"
+
+[[bin]]
+name = "sprawl5"
+path = "src/sprawl5.rs"

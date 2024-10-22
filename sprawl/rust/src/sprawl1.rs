@@ -1,3 +1,6 @@
+#![warn(clippy::pedantic)]
+#![deny(clippy::all)]
+
 use std::io::{self, Read, Write};
 
 static BYTES: [&[u8]; 256] = [
@@ -67,13 +70,13 @@ static BYTES: [&[u8]; 256] = [
     b"11111100", b"11111101", b"11111110", b"11111111",
 ];
 
-fn main() {
+fn main() -> io::Result<()> {
     let stdin = io::stdin();
     let mut stdout = io::stdout();
 
-    for c in stdin.bytes() {
-        if let Ok(b) = c {
-            let _ = stdout.write(BYTES[b as usize]);
-        }
+    for c in stdin.bytes().flatten() {
+        stdout.write_all(BYTES[c as usize])?;
     }
+
+    Ok(())
 }

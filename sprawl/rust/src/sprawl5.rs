@@ -1,16 +1,17 @@
-// sprawl6.rs
+#![warn(clippy::pedantic)]
+#![deny(clippy::all)]
+#![allow(clippy::large_stack_arrays, clippy::needless_range_loop)]
 
 use std::io::{self, Read, Write};
 
-const BUF_SIZE: usize = 4096;
+const BUF_SIZE: usize = 8_192;
 
-fn main() {
+fn main() -> io::Result<()> {
     // generate the bitstring lookup table
     let mut lookup = [[0u8; 8]; 256];
 
-    #[allow(clippy::needless_range_loop)]
     for i in 0..256 {
-        let s: String = format!("{:08b}", i);
+        let s: String = format!("{i:08b}");
         lookup[i].copy_from_slice(s.as_bytes());
     }
 
@@ -33,6 +34,8 @@ fn main() {
         }
 
         // dump outbuffer
-        let _ = bufout.write_all(&outbuffer[0..(n * 8)]);
+        bufout.write_all(&outbuffer[0..(n * 8)])?;
     }
+
+    Ok(())
 }

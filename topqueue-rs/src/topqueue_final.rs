@@ -60,9 +60,9 @@ impl<T: Ord> TopQueue<T> {
     /// Consumes the contents of the queue.
     #[must_use]
     pub fn into_vec(mut self) -> Vec<T> {
-        // BinaryHeap doesn't allow draining in sorted order,
-        // and the into_iter_sorted() method is unstable.
-        // So pop() values one at a time.
+        // `BinaryHeap` doesn't allow draining in sorted order,
+        // and the `into_iter_sorted()` method is unstable.
+        // This creates a `Vec<T>` populated by `pop()`ping values one at a time.
         from_fn(|| self.queue.pop().map(|r| r.0)).collect()
     }
 
@@ -101,29 +101,66 @@ impl<T: Ord> TopQueue<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::topqueue_final::TopQueue;
+    use super::TopQueue;
     use crate::util::rands;
 
-    const TEXT: &str = "In a castle of Westphalia,
-        belonging to the Baron of Thunder-ten-Tronckh, lived a youth, whom
-        nature had endowed with the most gentle manners.";
+    #[test]
+    fn topq_can_be_empty() {
+        let q: TopQueue<i32> = TopQueue::new(10);
+        assert_eq!(10, q.capacity());
+        assert_eq!(0, q.len());
+    }
+
+    #[test]
+    fn topq_can_be_under_capacity() {
+        let mut q = TopQueue::new(5);
+        for n in [1, 5, 3] {
+            q.push(n);
+        }
+        assert_eq!(5, q.capacity());
+        assert_eq!(3, q.len());
+    }
+
+    #[test]
+    fn topq_can_reach_capacity() {
+        let mut q = TopQueue::new(5);
+        for n in [1, 5, 3, 7, 4] {
+            q.push(n);
+        }
+        assert_eq!(5, q.capacity());
+        assert_eq!(q.len(), q.capacity());
+    }
+
+    #[test]
+    fn topq_retains_only_capacity_values() {
+        let mut q = TopQueue::new(3);
+        for n in [1, 5, 3, 7, 4] {
+            q.push(n);
+        }
+        assert_eq!(3, q.capacity());
+        assert_eq!(3, q.len());
+        dbg!(&q);
+        assert_eq!(vec![4, 5, 7], q.into_vec());
+    }
 
     #[test]
     fn topq_basics() {
         let mut q = TopQueue::new(10);
+        assert!(q.is_empty());
         assert_eq!(0, q.len());
         assert_eq!(10, q.capacity());
 
         // Throw in a handful of values
-        for n in &[1, 3, 5, 7, 21, 23] {
-            q.push(*n);
+        for n in [1, 3, 5, 7, 21, 23] {
+            q.push(n);
         }
+        assert!(!q.is_empty());
         assert_eq!(6, q.len());
         assert_eq!(10, q.capacity());
 
         // Push more than the queue will hold
-        for n in &[4, 6, 12, 14, 18, 20] {
-            q.push(*n);
+        for n in [4, 6, 12, 14, 18, 20] {
+            q.push(n);
         }
         assert_eq!(10, q.len());
         assert_eq!(10, q.capacity());
@@ -153,11 +190,11 @@ mod tests {
     /// Ensures the queue works with other orderable items, like chars.
     #[test]
     fn topq_handles_generic_ordered_items() {
-        let count = 5;
-        let q = TopQueue::from_iter(count, TEXT.chars());
+        let text = "The world is a stage, but the play is badly cast.";
+        let mut letters: Vec<_> = text.chars().collect();
+        letters.sort_unstable();
 
-        let mut all_chars: Vec<_> = TEXT.chars().collect();
-        all_chars.sort_unstable();
-        assert!(all_chars.ends_with(&q.into_vec()));
+        let q = TopQueue::from_iter(5, text.chars());
+        assert!(letters.ends_with(&q.into_vec()));
     }
 }

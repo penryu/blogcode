@@ -1,45 +1,42 @@
 //! Utility functions and example code.
 //!
 //! ```
-//! # use topqueue::util::*;
-//! let n_rands: Vec<i32> = rands().take(10).collect();
-//! let top_m = get_top(&n_rands, 3);
+//! use std::any::type_name_of_val as type_of;
 //!
-//! assert_eq!(n_rands.iter().max(), top_m.iter().max());
-//! ```
-//!
-//! Same as above, but MOAR.
-//!
-//! ```
-//! # use topqueue::util::*;
-//! let n_rands: Vec<i32> = rands().take(1_000_000).collect();
-//! let top_m = get_top(&n_rands, 100);
-//!
-//! assert_eq!(n_rands.iter().max(), top_m.iter().max());
-//! ```
-//!
-//! Same method on a rediciously inefficient scale!
-//!
-//! ```no_run
-//! # use topqueue::util::*;
-//! let n_rands: Vec<i32> = rands().take(100_000_000).collect();
-//! let top_m = get_top(&n_rands, 100);
-//!
-//! assert_eq!(n_rands.iter().max(), top_m.iter().max());
-//! ```
-
-//! ```rust
-//! use topqueue::util::{rands, with_type};
+//! use topqueue::util::rands;
 //!
 //! let mut random_nums: Vec<u8> = rands().take(10).collect();
 //! random_nums.sort();
 //! let top3 = random_nums.last_chunk::<3>().unwrap();
 //!
-//! with_type(&random_nums);
-//! with_type(&top3);
+//! println!("{random_nums:?}: {}", type_of(&random_nums));
+//! println!("{top3:?}: {}", type_of(&top3));
+//! ```
+//!
+//! Same as above, but MOAR.
+//!
+//! ```
+//! # use std::any::type_name_of_val as type_of;
+//! # use topqueue::util::rands;
+//! let mut nums: Vec<u16> = rands().take(10_000).collect();
+//! nums.sort_unstable();
+//! let top5 = nums.last_chunk::<5>().unwrap();
+//!
+//! println!("{top5:?}: {}", type_of(&top5));
+//! ```
+//!
+//! Same method on a ridiculously inefficient scale!
+//!
+//! ```
+//! # use std::any::type_name_of_val as type_of;
+//! # use topqueue::util::rands;
+//! let mut nums: Vec<u32> = rands().take(1_000_000).collect();
+//! nums.sort_unstable();
+//! let top100 = nums.last_chunk::<100>().unwrap();
+//!
+//! println!("{top100:?}: {}", type_of(&top100));
 //! ```
 
-use std::any::type_name;
 use std::iter::from_fn;
 
 use rand::distributions::{Distribution, Standard};
@@ -62,13 +59,10 @@ pub fn get_top(nums: &[i32], top: usize) -> Vec<i32> {
     dupe.into_iter().take(top).collect()
 }
 
-/// Displays the type of the variable passed.
-pub fn with_type<T: std::fmt::Debug>(x: &T) -> String {
-    format!("{x:?}: {}", type_name::<T>())
-}
-
 #[cfg(test)]
 mod tests {
+    use std::any::type_name_of_val as type_of;
+
     use super::*;
 
     #[test]
@@ -88,10 +82,26 @@ mod tests {
 
     #[test]
     fn test_with_type() {
-        assert_eq!("5: i32", with_type(&5_i32));
-        assert_eq!(
-            "\"foo\": alloc::string::String",
-            with_type(&String::from("foo"))
-        );
+        assert_eq!("i32", type_of(&5_i32));
+        assert_eq!("alloc::string::String", type_of(&String::from("foo")));
+    }
+
+    #[test]
+    fn test_top3() {
+        let mut nums: Vec<u8> = rands().take(10).collect();
+        nums.sort_unstable();
+        let top3 = nums.last_chunk::<3>().unwrap();
+
+        println!("{}", type_of(&nums));
+        println!("{}", type_of(&top3));
+    }
+
+    #[test]
+    fn test_top100() {
+        let mut nums: Vec<i32> = rands().take(1_000_000).collect();
+        nums.sort_unstable();
+        let top100 = nums.last_chunk::<100>().unwrap();
+
+        println!("{}", type_of(&top100));
     }
 }

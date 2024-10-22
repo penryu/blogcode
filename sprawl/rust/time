@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+FORMAT='{"usr": %U, "sys": %S, "total": %e, "cpu": "%P"}'
+
+bin="$1"
+file="$2"
+
+cargo build --release --bin "$bin"
+
+results=$({ gtime -f "$FORMAT" "target/release/$bin" < "$file" > out; } 2>&1)
+
+echo "$results" | tee "$bin.time"
