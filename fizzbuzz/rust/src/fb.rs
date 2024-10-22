@@ -2,7 +2,7 @@ use std::convert::From;
 
 pub type FBNum = u64;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub enum FB {
     Num(FBNum),
     Fizz,
@@ -21,7 +21,7 @@ impl From<FBNum> for FB {
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct FBStats {
     nums: usize,
     fizz: usize,
@@ -40,7 +40,7 @@ impl FBStats {
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct FBSet {
     pub nums: Vec<FBNum>,
     pub last: FBNum,
@@ -67,7 +67,7 @@ impl FBSet {
                 FB::Num(n) => {
                     self.stats.nums += 1;
                     self.nums.push(n);
-                },
+                }
             }
         }
         self.last = count.max(self.last);
