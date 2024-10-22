@@ -1,13 +1,13 @@
-import { fetchWithCallback, generatePassage, URLS } from './lib';
+import { fetchWithCallback, generatePassage, URLS } from "./lib.ts";
 
-async function runCallback(): Promise<void> {
-    fetchWithCallback(URLS[0], (textA: string) => {
-        fetchWithCallback(URLS[1], (textB: string) => {
-            const fullPassage: string = generatePassage([textA, textB]);
+function runCallback() {
+  fetchWithCallback(URLS[0], (textA: string) => {
+    fetchWithCallback(URLS[1], (textB: string) => {
+      const fullPassage: string = generatePassage([textA, textB]);
 
-            console.log(fullPassage);
-        });
+      console.log(fullPassage);
     });
+  });
 }
 
 export { runCallback };
