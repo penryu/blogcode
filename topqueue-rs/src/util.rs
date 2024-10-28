@@ -92,8 +92,8 @@ mod tests {
         nums.sort_unstable();
         let top3 = nums.last_chunk::<3>().unwrap();
 
-        println!("{}", type_of(&nums));
-        println!("{}", type_of(&top3));
+        assert_eq!("alloc::vec::Vec<u8>", type_of(&nums));
+        assert_eq!("&[u8; 3]", type_of(&top3));
     }
 
     #[test]
@@ -102,6 +102,6 @@ mod tests {
         nums.sort_unstable();
         let top100 = nums.last_chunk::<100>().unwrap();
 
-        println!("{}", type_of(&top100));
+        assert_eq!("&[i32; 100]", type_of(&top100));
     }
 }
